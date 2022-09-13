@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello world</title>
+    <script src="https://unpkg.com/arweave/bundles/web.bundle.js"></script>
+    <script src="https://bundle.run/buffer@6.0.3"></script>
+    <script>
+    const arweave = Arweave.init({  host: "arweave.net",
+  protocol: "https",
+  port: 443,
+  logging: false,
+  timeout: 30000,});
+
+    const init = async () => {
+  const key = await arweave.wallets.generate();
+  const data = {
+  "content": {
+    "body": "asd",
+    "timestamp": "1661756237",
+    "title": "asdaszxc"
+  },
+  "digest": "HAglbrXw2h63R5ONAGGs5MfWLqyc0c5POPbgF7SOIQY",
+  "authorship": {
+    "contributor": "0x549556178A4a9cB77Aabe9535f7e98ACD44d692B",
+    "signingKey": "{\"crv\":\"P-256\",\"ext\":true,\"key_ops\":[\"verify\"],\"kty\":\"EC\",\"x\":\"bX3a_cW99r6I2aoFcbuuNyzcIkyEMaQbltfHH8oXynw\",\"y\":\"6_4xNHcSOw_nf8qvVZ6H7dsT2V48I0NTlkbcKJD7SAc\"}",
+    "signature": "0xc7e76010b062c5f17ab9199034a566cfaedb8b728aff4fdfc4d1b118c58276966cf71f73777bae7338cf58bc8b38e26e7a2a028d3abefa85855618caefd0dd221b",
+    "signingKeySignature": "OAph3NMBKp2lvtMPoVvE3b_YhEjC5hLRiwhsZanxzXpAJCZfP4oyZF0bMpj386Jv0RcplyAraPG2zi0hP4wQgA",
+    "signingKeyMessage": "I authorize publishing on mirror.xyz from this device using:\n{\"crv\":\"P-256\",\"ext\":true,\"key_ops\":[\"verify\"],\"kty\":\"EC\",\"x\":\"bX3a_cW99r6I2aoFcbuuNyzcIkyEMaQbltfHH8oXynw\",\"y\":\"6_4xNHcSOw_nf8qvVZ6H7dsT2V48I0NTlkbcKJD7SAc\"}",
+    "algorithm": {
+      "name": "ECDSA",
+      "hash": "SHA-256"
+    }
+  },
+  "version": "04-25-2022",
+  "wnft": {
+    "chainId": 10,
+    "description": "asd\n",
+    "fee": 250,
+    "fundingRecipient": "0x549556178A4a9cB77Aabe9535f7e98ACD44d692B",
+    "imageURI": "bafkreid73lb5uh7lbhlhtqoaqzd4bw43v2fe773nrtz5n3mjxpr4ejwrba",
+    "mediaAssetId": 186320,
+    "name": "asdaszxc",
+    "nonce": 8528687,
+    "owner": "0x549556178A4a9cB77Aabe9535f7e98ACD44d692B",
+    "price": 0,
+    "proxyAddress": "0xaf2edcB7390D0c9D736C9921e60e7A27A80FBA60",
+    "renderer": "0x0000000000000000000000000000000000000000",
+    "supply": 500,
+    "symbol": "ASDASZXC"
+  }
+}
+
+
+  // let transaction = await arweave.createTransaction(
+  //   {
+  //     data: buffer.Buffer.from(JSON.stringify(data), 'utf8'),
+  //   },
+  //   key
+  // );
+
+  // transaction.addTag('Content-Type', "application/json")
+  // transaction.addTag("App-Name", "Hojin Test")
+
+  let transaction = await arweave.createTransaction({
+    data: 'test',
+}, key);
+
+console.log(transaction);
+
+console.log(" ");
+  console.log("-----------------------------");
+  console.log(" ");
+
+transaction.addTag("test-tag-1", "test-value-1");
+    transaction.addTag("test-tag-2", "test-value-2");
+    transaction.addTag("test-tag-3", "test-value-3");
+
+  console.log(transaction);
+
+  console.log(" ");
+  console.log("-----------------------------");
+  console.log(" ");
+
+  await arweave.transactions.sign(transaction, key)
+  
+
+
+
+//   let uploader = await arweave.transactions.getUploader(transaction);
+
+// while (!uploader.isComplete) {
+//   try{
+//     await uploader.uploadChunk(); 
+//   }catch(error){
+//     console.log(error)
+//     console.error(error)
+//   }
+//   console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
+// }
+
+
+
+};
+
+init();
+    </script>
+</head>
+<body>
+
+</body>
+</html>
