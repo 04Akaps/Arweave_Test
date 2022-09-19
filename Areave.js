@@ -1,12 +1,16 @@
 const Arweave = require("arweave");
+const key = require("./key.json");
 
-// If you want to connect directly to a node
+// Trsnaction을 사용하는데에 가스비가 arToken을 들어가기 떄문에 docker를 실행하여 image를 따와야 한다.
+// https://github.com/textury/arlocal
+
+// 그후 local환경에서 Test
+
+// SDK docs : https://github.com/ArweaveTeam/arweave-js
 const arweave = Arweave.init({
-  host: "arweave.net",
-  port: 443,
-  protocol: "https",
-  timeout: 20000,
-  logging: false,
+  host: "127.0.0.1",
+  port: 1984,
+  protocol: "http",
 });
 
 var imageUrl =
@@ -39,28 +43,57 @@ let metadata = `{
     }`;
 
 const init = async () => {
-  metadata = metadata.trim();
-  const metadataRequest = JSON.parse(JSON.stringify(metadata));
-  const metadataTransaction = await arweave.createTransaction({
-    data: metadataRequest,
+  const key = await arweave.wallets.generate();
+  const address = await arweave.wallets.jwkToAddress(key);
+
+  console.log("address", address);
+
+  await arweave.api.get(`/mint/${address}/${arweave.ar.arToWinston("10")}`);
+
+  const transaction = await arweave.createTransaction({
+    data: "hoijn",
   });
 
-  metadataTransaction.addTag("Content-Type", "application/json");
+  await arweave.transactions.sign(transaction, key);
+  let uploader = await arweave.transactions.getUploader(transaction);
 
-  // const key = await arweave.wallets.generate();
-  console.log(" ");
-  console.log("-----------------------------");
-  console.log(" ");
+  while (!uploader.isComplete) {
+    await uploader.uploadChunk();
 
-  await arweave.transactions.sign(
-    metadataTransaction,
-    "Your Areave Wallet Json File, must Need Arb Token For Fee"
-  );
+    // console.log(uploader);
+    // console.log(
+    //   `${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`
+    // );
+  }
+  // { decode: true, string: true }
+  arweave.transactions
+    .get(transaction.id, { decode: true })
+    .then((data) => console.log("data", data));
 
-  console.log("https://arweave.net/" + metadataTransaction.id);
+  // https://viewblock.io/arweave/tx/SjeZog7tZfsSDUkobwJyiA5rbtnvui2mTNt1kEzORiE
+  // https://cclklr6ldqca7ty6tlg2pyabxntrckgrgjrelnxejr4gmt5hpltq.arweave.net/EJalx8scBA_PHprNp-ABu2cRKNEyYkW25Ex4Zk-neuc
 
-  let response = await arweave.transactions.post(metadataTransaction);
-  console.log(response);
+  // hbv3fi7ao5cfc88hes5tgbzdts0fpezr5e0vnnutw739auem8q1jzz87pg9a41qv
+  // 2hDD2pZnGojsDZ1CD2NYyAJCRPN6QVGWHt7jWyIkl3E
+  // Uint8Array(5) [ 104, 111, 105, 106, 110 ]
+
+  // metadata = metadata.trim();
+  // const metadataRequest = JSON.parse(JSON.stringify(metadata));
+  // const metadataTransaction = await arweave.createTransaction({
+  //   data: metadataRequest,
+  // });
+  // metadataTransaction.addTag("Content-Type", "application/json");
+  // // const key = await arweave.wallets.generate();
+  // console.log(" ");
+  // console.log("-----------------------------");
+  // console.log(" ");
+  // await arweave.transactions.sign(
+  //   metadataTransaction,
+  //   "Your Areave Wallet Json File, must Need Arb Token For Fee"
+  // );
+  // console.log("https://arweave.net/" + metadataTransaction.id);
+  // let response = await arweave.transactions.post(metadataTransaction);
+  // console.log(response);
 };
 
 init();
